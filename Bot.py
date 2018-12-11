@@ -1,5 +1,5 @@
 import os
-import dialogflow_v2 as dialogflow
+import dialogflow
 import random
 import string
 

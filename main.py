@@ -4,6 +4,7 @@ import Bot
 import random
 import string
 import pyswip as ps
+import UI
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="./food-en-48f9e47f143e.json"
 
@@ -27,16 +28,18 @@ def write_to_prolog(dict):
 print('Say \'Hi\'')
 b = Bot.Bot('food-en', 'en')
 
-while True:
-    str = input('>>> ')
+# while True:
+#     str = input('>>> ')
+#
+#
+#     res, i = b.say(str)
+#     c = b.contexts
+#     check_dict(c)
+#     print(res)
+#     if i == 'By':
+#         break
+botMess = UI.BotMessaging(b)
 
-
-    res, i = b.say(str)
-    c = b.contexts
-    check_dict(c)
-    print(res)
-    if i == 'By':
-        break
 
 try:
     prolog = ps.Prolog()
@@ -44,4 +47,5 @@ try:
     for i in prolog.query("order(X,Y)"):
         print('{}\torder\t{}'.format(i['X'].upper(), i['Y'].upper()))
 except:
+
     pass
