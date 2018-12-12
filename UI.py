@@ -27,7 +27,6 @@ class BotMessaging:
         self.app = QApplication([])
 
         scriptDir = os.path.dirname(os.path.realpath(__file__))
-        #print (scriptDir)
         self.app.setWindowIcon(QtGui.QIcon(scriptDir + os.path.sep + 'logo.ico'))
 
         self.window = QWidget()
@@ -48,14 +47,17 @@ class BotMessaging:
         self.app.exec_()
 
 
-    def SendButtonClick(self):#invoke outer program from this method
-        textToPrint="User: "
+    def SendButtonClick(self):#use bot here
+        userDefault="User: "
         user_says = self.userInputTextEdit.text()
-        self.logOutput.append(textToPrint+user_says)
+        self.logOutput.append(userDefault+user_says)
         print("USER: "+ user_says)
         self.userInputTextEdit.setText("")
-        bot_answer = self.bot.say(user_says)[0]
-        print("Bot: "+bot_answer)
-        self.logOutput.append(bot_answer)
-
+        try:
+            bot_answer = self.bot.say(user_says)[0]
+            print("Bot: "+bot_answer)
+            botDefault = "Bot: "
+            self.logOutput.append(botDefault + bot_answer)
+        except:
+            print("Bot: We are offline. I can't help you, sorry. Check your internet connection")
 
