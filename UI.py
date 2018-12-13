@@ -10,6 +10,43 @@ class EnterPressedSignal(QObject):
     pressed = pyqtSignal()
 
 
+class PhraseWidget(QWidget):
+    def __init__(self, imgname, label):
+        super(PhraseWidget, self).__init__()
+        self.current_layout = QHBoxLayout()
+        img_label = QLabel()
+        img_label.setPixmap(QtGui.QPixmap(imgname))
+        self.current_layout.addWidget(img_label)
+        self.current_layout.addWidget(label)
+        self.setLayout(self.current_layout)
+
+
+class DynamicScrollableArea(QWidget):
+    def __init__(self):
+        super(DynamicScrollableArea, self).__init__()
+        self.widget = QWidget()
+        layout = QVBoxLayout(self)
+
+        layout.addStretch()
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(self.widget)
+
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(self.widget)
+        self.widget.setLayout(layout)
+
+        vLayout = QVBoxLayout(self)
+        vLayout.addWidget(scroll)
+        self.setLayout(vLayout)
+
+    def add_new_label(self, text, answertype):#answer type means whether this is user or bot answer
+        label = QLabel(text)
+        phrase = PhraseWidget(answertype, label)
+        layout = self.widget.layout()
+        layout.insertWidget(layout.count(), phrase)
+
+
 class UserInput(QLineEdit):
     def __init__(self):
         super(QLineEdit, self).__init__()
@@ -23,7 +60,6 @@ class UserInput(QLineEdit):
 
 class BotMessaging:
     def __init__(self, bot):
-        self.UserName = "Olya"
         self.bot = bot
         self.app = QApplication([])
 
@@ -33,10 +69,10 @@ class BotMessaging:
         self.window = QWidget()
         self.window.setWindowTitle('Food talk')
         self.layout = QVBoxLayout()
-        self.logOutput = QTextEdit()
-        self.logOutput.setReadOnly(True)
-        self.logOutput.setLineWrapMode(QTextEdit.NoWrap)
-        self.layout.addWidget(self.logOutput)
+
+        self.conversation = DynamicScrollableArea()
+        self.layout.addWidget(self.conversation)
+
         self.userInputTextEdit = UserInput()
         self.layout.addWidget(self.userInputTextEdit)
         self.userInputTextEdit.sgn.pressed.connect(self.SendButtonClick)
@@ -48,25 +84,23 @@ class BotMessaging:
         self.app.exec_()
 
 
-    def SendButtonClick(self):#use bot here
-        userDefault="User: "
+    def SendButtonClick(self):
         user_says = self.userInputTextEdit.text()
-        self.logOutput.append(userDefault+user_says)
+        self.conversation.add_new_label(user_says,"user.png")
         print("USER: "+ user_says)
         self.userInputTextEdit.setText("")
         try:
             bot_answer = self.bot.say(user_says)[0]
             print("Bot: "+bot_answer)
-            botDefault = "Bot: "
-            self.logOutput.append(botDefault + bot_answer)
-
+            self.conversation.add_new_label(bot_answer, "bot.png")
             c = self.bot.contexts
             check_dict(c)
 
             self.prolog_log()
 
         except:
-            print("Bot: We are offline. I can't help you, sorry. Check your internet connection")
+            bot_answer = "We are offline. I can't help you, sorry. Check your internet connection"
+            self.conversation.add_new_label(bot_answer, "bot.png")
 
 
     def prolog_log(self):
