@@ -1,4 +1,5 @@
 import os
+import pyswip as ps
 from PyQt5.QtCore import pyqtSignal, QObject
 from PyQt5.QtWidgets import*
 import PyQt5.QtCore as qc
@@ -58,6 +59,41 @@ class BotMessaging:
             print("Bot: "+bot_answer)
             botDefault = "Bot: "
             self.logOutput.append(botDefault + bot_answer)
+
+            c = self.bot.contexts
+            check_dict(c)
+
+            self.prolog_log()
+
         except:
             print("Bot: We are offline. I can't help you, sorry. Check your internet connection")
 
+
+    def prolog_log(self):
+        try:
+            prolog = ps.Prolog()
+            prolog.consult("./prolog.pl")
+            for i in prolog.query("order(X,Y)"):
+                print('{}\torder\t{}'.format(i['X'].upper(), i['Y'].upper()))
+        except:
+
+            pass
+
+
+
+
+def check_dict(dict):
+    if 'given-name' in dict.keys() and 'foods' in dict.keys():
+        write_to_prolog(dict)
+
+
+def write_to_prolog(dict):
+    str = 'order({0},{1}).'.format(dict['given-name'].lower(), dict['foods'].lower())
+
+    with open('prolog.pl', 'r') as pl:
+        lines = [x.strip() for x in pl.readlines()]
+
+    with open('prolog.pl', 'a+') as pl:
+        # lines = [x.strip() for x in pl.readlines()]
+        if str not in lines:
+            pl.write('\n'+str)
