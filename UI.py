@@ -76,12 +76,29 @@ class BotMessaging:
         self.userInputTextEdit = UserInput()
         self.layout.addWidget(self.userInputTextEdit)
         self.userInputTextEdit.sgn.pressed.connect(self.SendButtonClick)
+
         self.sendButton = QPushButton('Send')
         self.sendButton.clicked.connect(self.SendButtonClick)
         self.layout.addWidget(self.sendButton)
+        self.endConversationButton = QPushButton("End conversation")
+        self.endConversationButton.clicked.connect(self.EndConvButtonClick)
+        self.layout.addWidget(self.endConversationButton)
         self.window.setLayout(self.layout)
         self.window.show()
         self.app.exec_()
+
+
+    def EndConvButtonClick(self):
+        pl_data = self.get_prolog_data()
+        text="What people order:\n"
+        for k in pl_data:
+            text+=k+ " ordered:\n"
+            for i in pl_data[k]:
+                text+=" - "+i+"\n"
+
+        QMessageBox.about(self.window, "Orders", str(text))
+        self.app.closeAllWindows()
+        pass
 
 
     def SendButtonClick(self):
@@ -110,7 +127,23 @@ class BotMessaging:
             for i in prolog.query("order(X,Y)"):
                 print('{}\torder\t{}'.format(i['X'].upper(), i['Y'].upper()))
         except:
+            pass
 
+
+    def get_prolog_data(self):
+        data = {}
+        try:
+            prolog = ps.Prolog()
+            prolog.consult("./prolog.pl")
+            for i in prolog.query("order(X,Y)"):
+               # print(i['X'])
+               # print(i['Y'])
+                if i['X'] in data:
+                    data[i['X']].append(i['Y'])
+                else:
+                    data[i['X']] = [i['Y']]
+            return data
+        except:
             pass
 
 
